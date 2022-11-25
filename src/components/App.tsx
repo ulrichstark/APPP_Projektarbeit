@@ -2,6 +2,7 @@ import MapView from "react-native-maps";
 import { requestForegroundPermissionsAsync } from "expo-location";
 import { StyleSheet, View } from "react-native";
 import { useEffect } from "react";
+import { registerRootComponent } from "expo";
 
 export default function App() {
     useEffect(() => {
@@ -14,6 +15,8 @@ export default function App() {
         </View>
     );
 }
+
+registerRootComponent(App);
 
 const styles = StyleSheet.create({
     container: {

@@ -3,6 +3,7 @@
         "name": "projektarbeit",
         "slug": "projektarbeit",
         "version": "1.0.0",
+        "entryPoint": "./src/components/App.tsx",
         "orientation": "portrait",
         "icon": "./assets/icon.png",
         "userInterfaceStyle": "light",
