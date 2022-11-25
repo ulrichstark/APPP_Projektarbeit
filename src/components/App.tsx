@@ -1,5 +1,5 @@
-import MapView, { Marker } from "react-native-maps";
-import { requestForegroundPermissionsAsync } from "expo-location";
+import MapView, { Marker, Region } from "react-native-maps";
+import { requestForegroundPermissionsAsync, startLocationUpdatesAsync, LocationObject } from "expo-location";
 import { StyleSheet, View } from "react-native";
 import { useEffect, useState } from "react";
 import { registerRootComponent } from "expo";
@@ -7,16 +7,37 @@ import { initialParkingLots } from "../initialParkingLots";
 import { XMLParser } from "fast-xml-parser";
 import { ApiResponse } from "../models/ApiResponse";
 import { getParkingLotDescription } from "../utils/getParkingLotDescription";
+import { Coordinate } from "../models/Coordinate";
+import { defineTask } from "expo-task-manager";
+import { config } from "../config";
 
 export default function App() {
+    const [userCoords, setUserCoords] = useState<Coordinate | null>(null);
     const [parkingLots, setParkingLots] = useState(initialParkingLots);
 
     useEffect(() => {
-        requestForegroundPermissionsAsync();
+        requestForegroundPermissionsAsync().then(() => {
+            defineTask(config.taskLocationUpdates, ({ data, error }) => {
+                if (error) {
+                    // check error.message for more details.
+                    return;
+                } else {
+                    const locations: LocationObject[] = (data as any).locations;
+
+                    if (locations) {
+                        const location = locations[0];
+
+                        setUserCoords(location.coords);
+                    }
+                }
+            });
+
+            startLocationUpdatesAsync(config.taskLocationUpdates);
+        });
     }, []);
 
     useEffect(() => {
-        fetch("https://parken.amberg.de/wp-content/uploads/pls/pls.xml")
+        fetch(config.parkingLotsApi)
             .then((response) => response.text())
             .then((responseText) => {
                 const parser = new XMLParser({ processEntities: true, htmlEntities: true });
@@ -43,9 +64,14 @@ export default function App() {
             });
     }, []);
 
+    const mapRegionDelta = 0.005;
+    const mapRegion: Region | undefined = userCoords
+        ? { latitude: userCoords.latitude, longitude: userCoords.longitude, latitudeDelta: mapRegionDelta, longitudeDelta: mapRegionDelta }
+        : undefined;
+
     return (
         <View style={styles.container}>
-            <MapView style={styles.map} showsUserLocation followsUserLocation>
+            <MapView style={styles.map} showsUserLocation region={mapRegion}>
                 {parkingLots.map((parkingLot) => (
                     <Marker
                         key={parkingLot.id}
@@ -54,6 +80,7 @@ export default function App() {
                         description={getParkingLotDescription(parkingLot)}
                     />
                 ))}
+                {userCoords && <Marker coordinate={userCoords} />}
             </MapView>
         </View>
     );
