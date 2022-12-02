@@ -28,8 +28,8 @@ export const initialParkingLots: ParkingLot[] = [
     {
         id: 5,
         name: "Kurfürstenbad",
-        latitude: 49.442241,
-        longitude: 11.858732,
+        latitude: 49.441916,
+        longitude: 11.859739,
     },
     {
         id: 6,
