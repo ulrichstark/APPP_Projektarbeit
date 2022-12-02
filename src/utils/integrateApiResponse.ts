@@ -2,7 +2,7 @@ import { ApiResponse } from "../models/ApiResponse";
 import { ParkingLot } from "../models/ParkingLot";
 
 export function integrateApiResponse(response: ApiResponse, parkingLots: ParkingLot[]) {
-    const newParkingLots = [...parkingLots];
+    const newParkingLots = parkingLots.map((parkingLot) => ({ ...parkingLot }));
 
     if (response && response.Daten && response.Daten.Parkhaus) {
         for (const parkingLotApi of response.Daten.Parkhaus) {

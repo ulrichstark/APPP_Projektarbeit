@@ -10,10 +10,10 @@ export function useNearestFreeParkingLots(userCoords: Coordinate | null, parking
             return null;
         }
 
-        const freeParkingLots = parkingLots.filter((lot) => lot.free && lot.free > 0);
-        const freeParkingLotsWithDistance: ParkingLotWithDistance[] = freeParkingLots.map((lot) => ({
-            ...lot,
-            distance: calculateDistance(userCoords, lot),
+        const freeParkingLots = parkingLots.filter((parkingLot) => parkingLot.free && parkingLot.free > 0);
+        const freeParkingLotsWithDistance: ParkingLotWithDistance[] = freeParkingLots.map((parkingLot) => ({
+            ...parkingLot,
+            distance: calculateDistance(userCoords, parkingLot),
         }));
 
         if (freeParkingLotsWithDistance.length === 0) {

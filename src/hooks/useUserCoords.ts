@@ -19,7 +19,6 @@ export function useUserCoords() {
         const executor: TaskManagerTaskExecutor = ({ data, error }) => {
             if (error) {
                 // check error.message for more details.
-                return;
             } else {
                 const locations: LocationObject[] = (data as any).locations;
                 if (locations) {

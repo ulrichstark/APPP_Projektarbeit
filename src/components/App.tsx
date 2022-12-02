@@ -1,41 +1,54 @@
-import MapView, { Marker, Region } from "react-native-maps";
-import { StatusBar, StyleSheet, Text, View } from "react-native";
+import MapView from "react-native-maps";
+import { StatusBar, StyleSheet, View } from "react-native";
 import { registerRootComponent } from "expo";
 import { ParkingLotMarker } from "./ParkingLotMarker";
 import { useUserCoords } from "../hooks/useUserCoords";
 import { useParkingLots } from "../hooks/useParkingLots";
 import { useNearestFreeParkingLots } from "../hooks/useNearestFreeParkingLots";
+import { IconButton, Card } from "react-native-paper";
+import { useState } from "react";
+import { formatDistance } from "../utils/formatDistance";
+import { ParkingLotList } from "./ParkingLotList";
+import { useMapRegion } from "../hooks/useMapRegion";
 
 export default function App() {
+    const [locationFocusActive, setLocationFocusActive] = useState(true);
+    const [detailsExpanded, setDetailsExpanded] = useState(false);
+
     const userCoords = useUserCoords();
     const parkingLots = useParkingLots();
+    const mapRegion = useMapRegion(userCoords, locationFocusActive);
     const nearestFreeParkingLots = useNearestFreeParkingLots(userCoords, parkingLots);
-    const nearestFreeParkingLot = nearestFreeParkingLots?.[0] || null;
 
-    const mapRegionDelta = 0.005;
-    const mapRegion: Region | undefined = userCoords
-        ? { latitude: userCoords.latitude, longitude: userCoords.longitude, latitudeDelta: mapRegionDelta, longitudeDelta: mapRegionDelta }
-        : undefined;
+    const cardTitle = nearestFreeParkingLots
+        ? `${nearestFreeParkingLots[0].name} in ${formatDistance(nearestFreeParkingLots[0].distance)}`
+        : "Alles belegt";
 
     return (
         <View style={styles.container}>
             <StatusBar />
-            <MapView style={styles.map} showsUserLocation region={mapRegion}>
+            <MapView style={styles.map} showsUserLocation region={mapRegion} showsMyLocationButton={false}>
                 {parkingLots.map((parkingLot) => (
                     <ParkingLotMarker key={parkingLot.id} parkingLot={parkingLot} />
                 ))}
-                {userCoords && <Marker coordinate={userCoords} />}
             </MapView>
-            <View style={styles.overlay}>
-                {nearestFreeParkingLot && (
-                    <View style={styles.nearestFreeParkingLot}>
-                        <Text style={styles.textSmall}>Nächster freier Parkplatz</Text>
-                        <Text style={styles.textLarge}>
-                            {nearestFreeParkingLot.name} - {Math.round(nearestFreeParkingLot.distance)} m
-                        </Text>
-                    </View>
+            <Card style={styles.overlay} onPress={() => setDetailsExpanded(!detailsExpanded)}>
+                <Card.Title
+                    title={cardTitle}
+                    subtitle="Nächster freier Parkplatz"
+                    right={() => (
+                        <IconButton
+                            icon={locationFocusActive ? "crosshairs-gps" : "crosshairs-off"}
+                            onPress={() => setLocationFocusActive(!locationFocusActive)}
+                        />
+                    )}
+                />
+                {nearestFreeParkingLots && detailsExpanded && (
+                    <Card.Content>
+                        <ParkingLotList parkingLots={nearestFreeParkingLots} />
+                    </Card.Content>
                 )}
-            </View>
+            </Card>
         </View>
     );
 }
@@ -53,21 +66,8 @@ const styles = StyleSheet.create({
     },
     overlay: {
         position: "absolute",
-        left: 10,
         top: 10,
-    },
-    nearestFreeParkingLot: {
-        backgroundColor: "white",
-        padding: 10,
-        borderRadius: 10,
-    },
-    textSmall: {
-        opacity: 0.7,
-    },
-    textMedium: {
-        fontSize: 16,
-    },
-    textLarge: {
-        fontSize: 20,
+        left: 10,
+        right: 10,
     },
 });
