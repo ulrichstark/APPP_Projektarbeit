@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Coordinate } from "../models/Coordinate";
 import { defineTask, TaskManagerTaskExecutor } from "expo-task-manager";
 import { config } from "../config";
+import Toast from "react-native-root-toast";
 
 let executors: TaskManagerTaskExecutor[] = [];
 
@@ -18,7 +19,7 @@ export function useUserCoords() {
     useEffect(() => {
         const executor: TaskManagerTaskExecutor = ({ data, error }) => {
             if (error) {
-                // check error.message for more details.
+                Toast.show("Standort konnte nicht abgefragt werden");
             } else {
                 const locations: LocationObject[] = (data as any).locations;
                 if (locations) {
@@ -29,9 +30,9 @@ export function useUserCoords() {
 
         executors.push(executor);
 
-        requestForegroundPermissionsAsync().then(() => {
-            startLocationUpdatesAsync(config.taskLocationUpdates, { accuracy: LocationAccuracy.BestForNavigation });
-        });
+        requestForegroundPermissionsAsync()
+            .then(() => startLocationUpdatesAsync(config.taskLocationUpdates, { accuracy: LocationAccuracy.BestForNavigation }))
+            .catch(() => Toast.show("Standort-Berechtigung wurde nicht erteilt"));
 
         return () => {
             executors = executors.filter((e) => e !== executor);

@@ -10,6 +10,7 @@ import { useState } from "react";
 import { formatDistance } from "../utils/formatDistance";
 import { ParkingLotList } from "./ParkingLotList";
 import { useMapRegion } from "../hooks/useMapRegion";
+import { RootSiblingParent } from "react-native-root-siblings";
 
 export default function App() {
     const [locationFocusActive, setLocationFocusActive] = useState(true);
@@ -22,34 +23,36 @@ export default function App() {
 
     const cardTitle = nearestFreeParkingLots
         ? `${nearestFreeParkingLots[0].name} in ${formatDistance(nearestFreeParkingLots[0].distance)}`
-        : "Alles belegt";
+        : "Kein freier Parkplatz";
 
     return (
-        <View style={styles.container}>
-            <StatusBar />
-            <MapView style={styles.map} showsUserLocation region={mapRegion} showsMyLocationButton={false}>
-                {parkingLots.map((parkingLot) => (
-                    <ParkingLotMarker key={parkingLot.id} parkingLot={parkingLot} />
-                ))}
-            </MapView>
-            <Card style={styles.overlay} onPress={() => setDetailsExpanded(!detailsExpanded)}>
-                <Card.Title
-                    title={cardTitle}
-                    subtitle="Nächster freier Parkplatz"
-                    right={() => (
-                        <IconButton
-                            icon={locationFocusActive ? "crosshairs-gps" : "crosshairs-off"}
-                            onPress={() => setLocationFocusActive(!locationFocusActive)}
-                        />
+        <RootSiblingParent>
+            <View style={styles.container}>
+                <StatusBar />
+                <MapView style={styles.map} showsUserLocation region={mapRegion} showsMyLocationButton={false}>
+                    {parkingLots.map((parkingLot) => (
+                        <ParkingLotMarker key={parkingLot.id} parkingLot={parkingLot} />
+                    ))}
+                </MapView>
+                <Card style={styles.overlay} onPress={() => setDetailsExpanded(!detailsExpanded)}>
+                    <Card.Title
+                        title={cardTitle}
+                        subtitle="Nächster freier Parkplatz"
+                        right={() => (
+                            <IconButton
+                                icon={locationFocusActive ? "crosshairs-gps" : "crosshairs-off"}
+                                onPress={() => setLocationFocusActive(!locationFocusActive)}
+                            />
+                        )}
+                    />
+                    {nearestFreeParkingLots && detailsExpanded && (
+                        <Card.Content>
+                            <ParkingLotList parkingLots={nearestFreeParkingLots} />
+                        </Card.Content>
                     )}
-                />
-                {nearestFreeParkingLots && detailsExpanded && (
-                    <Card.Content>
-                        <ParkingLotList parkingLots={nearestFreeParkingLots} />
-                    </Card.Content>
-                )}
-            </Card>
-        </View>
+                </Card>
+            </View>
+        </RootSiblingParent>
     );
 }
 
