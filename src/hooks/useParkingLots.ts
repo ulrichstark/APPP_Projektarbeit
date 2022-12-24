@@ -66,7 +66,7 @@ export function useParkingLots() {
         };
 
         updater();
-        const intervalHandle = window.setInterval(updater, 60 * 1000); // Jede Minute
+        const intervalHandle = window.setInterval(updater, config.parkingLotsUpdateInterval);
         return () => window.clearInterval(intervalHandle);
     }, []);
 

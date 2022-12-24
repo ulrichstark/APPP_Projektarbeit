@@ -4,13 +4,14 @@ import { registerRootComponent } from "expo";
 import { ParkingLotMarker } from "./ParkingLotMarker";
 import { useUserCoords } from "../hooks/useUserCoords";
 import { useParkingLots } from "../hooks/useParkingLots";
-import { useNearestFreeParkingLots } from "../hooks/useNearestFreeParkingLots";
+import { useParkingLotsWithDistance } from "../hooks/useParkingLotsWithDistance";
 import { IconButton, Card } from "react-native-paper";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { formatDistance } from "../utils/formatDistance";
 import { ParkingLotList } from "./ParkingLotList";
 import { useMapRegion } from "../hooks/useMapRegion";
 import { RootSiblingParent } from "react-native-root-siblings";
+import { useGeofenceEffect } from "../hooks/useGeofenceEffect";
 
 export default function App() {
     const [locationFocusActive, setLocationFocusActive] = useState(true);
@@ -19,11 +20,23 @@ export default function App() {
     const userCoords = useUserCoords();
     const parkingLots = useParkingLots();
     const mapRegion = useMapRegion(userCoords, locationFocusActive);
-    const nearestFreeParkingLots = useNearestFreeParkingLots(userCoords, parkingLots);
+    const parkingLotsWithDistance = useParkingLotsWithDistance(userCoords, parkingLots);
 
-    const cardTitle = nearestFreeParkingLots
-        ? `${nearestFreeParkingLots[0].name} in ${formatDistance(nearestFreeParkingLots[0].distance)}`
+    const nearestFreeParkingLot = useMemo(() => {
+        for (const parkingLot of parkingLotsWithDistance) {
+            if (parkingLot.free && parkingLot.free > 0) {
+                return parkingLot;
+            }
+        }
+
+        return null;
+    }, [parkingLotsWithDistance]);
+
+    const cardTitle = nearestFreeParkingLot
+        ? `${nearestFreeParkingLot.name} in ${formatDistance(nearestFreeParkingLot.distance)}`
         : "Kein freier Parkplatz";
+
+    useGeofenceEffect(parkingLotsWithDistance);
 
     return (
         <RootSiblingParent>
@@ -45,9 +58,9 @@ export default function App() {
                             />
                         )}
                     />
-                    {nearestFreeParkingLots && detailsExpanded && (
+                    {detailsExpanded && (
                         <Card.Content>
-                            <ParkingLotList parkingLots={nearestFreeParkingLots} />
+                            <ParkingLotList parkingLots={parkingLotsWithDistance} />
                         </Card.Content>
                     )}
                 </Card>
