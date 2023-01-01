@@ -12,13 +12,15 @@ import { ParkingLotList } from "./ParkingLotList";
 import { useMapRegion } from "../hooks/useMapRegion";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { useGeofenceEffect } from "../hooks/useGeofenceEffect";
+import { useFavorites } from "../hooks/useFavorites";
 
 export default function App() {
     const [locationFocusActive, setLocationFocusActive] = useState(true);
     const [detailsExpanded, setDetailsExpanded] = useState(false);
 
+    const [favorites, toggleFavorite] = useFavorites();
     const userCoords = useUserCoords();
-    const parkingLots = useParkingLots();
+    const parkingLots = useParkingLots(favorites);
     const mapRegion = useMapRegion(userCoords, locationFocusActive);
     const parkingLotsWithDistance = useParkingLotsWithDistance(userCoords, parkingLots);
 
@@ -51,6 +53,15 @@ export default function App() {
                     <Card.Title
                         title={cardTitle}
                         subtitle="Nächster freier Parkplatz"
+                        left={() =>
+                            nearestFreeParkingLot ? (
+                                <IconButton
+                                    icon={nearestFreeParkingLot.favorite ? "heart" : "heart-outline"}
+                                    color={nearestFreeParkingLot.favorite ? "red" : "#666"}
+                                    onPress={() => toggleFavorite(nearestFreeParkingLot)}
+                                />
+                            ) : null
+                        }
                         right={() => (
                             <IconButton
                                 icon={locationFocusActive ? "crosshairs-gps" : "crosshairs-off"}
@@ -60,7 +71,7 @@ export default function App() {
                     />
                     {detailsExpanded && (
                         <Card.Content>
-                            <ParkingLotList parkingLots={parkingLotsWithDistance} />
+                            <ParkingLotList parkingLots={parkingLotsWithDistance} onToggleFavorite={toggleFavorite} />
                         </Card.Content>
                     )}
                 </Card>

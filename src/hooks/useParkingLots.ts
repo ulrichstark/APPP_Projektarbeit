@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { initialParkingLots } from "../initialParkingLots";
 import { XMLParser } from "fast-xml-parser";
 import { ApiResponse } from "../models/ApiResponse";
@@ -55,7 +55,7 @@ function updateParkingLots(): Promise<ParkingLot[]> {
     });
 }
 
-export function useParkingLots() {
+export function useParkingLots(favorites: number[]) {
     const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
 
     useEffect(() => {
@@ -76,5 +76,7 @@ export function useParkingLots() {
         }
     }, [parkingLots]);
 
-    return parkingLots;
+    return useMemo(() => {
+        return parkingLots.map((parkingLot) => ({ ...parkingLot, favorite: favorites.includes(parkingLot.id) }));
+    }, [parkingLots, favorites]);
 }

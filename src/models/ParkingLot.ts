@@ -9,4 +9,5 @@ export interface ParkingLot extends Coordinate {
     trend?: -1 | 0 | -1;
     status?: "OK" | "Ersatzwerte" | "Manuell" | "Störung";
     closed?: boolean;
+    favorite?: boolean;
 }
