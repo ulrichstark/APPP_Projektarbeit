@@ -21,7 +21,6 @@ export default function App() {
     const [favorites, toggleFavorite] = useFavorites();
     const userCoords = useUserCoords();
     const parkingLots = useParkingLots(favorites);
-    const mapRegion = useMapRegion(userCoords, locationFocusActive);
     const parkingLotsWithDistance = useParkingLotsWithDistance(userCoords, parkingLots);
 
     const nearestFreeParkingLot = useMemo(() => {
@@ -38,6 +37,7 @@ export default function App() {
         ? `${nearestFreeParkingLot.name} in ${formatDistance(nearestFreeParkingLot.distance)}`
         : "Kein freier Parkplatz";
 
+    const mapRegion = useMapRegion(userCoords, nearestFreeParkingLot, locationFocusActive);
     useGeofenceEffect(parkingLotsWithDistance);
 
     return (
