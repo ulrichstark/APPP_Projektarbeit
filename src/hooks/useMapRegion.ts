@@ -3,11 +3,11 @@ import { Region } from "react-native-maps";
 import { Coordinate } from "../models/Coordinate";
 import { ParkingLotWithDistance } from "../models/ParkingLotWithDistance";
 
-export function useMapRegion(userCoords: Coordinate | null, nearestFreeParkingLot: ParkingLotWithDistance | null, locationFocusActive: boolean) {
+export function useMapRegion(userCoords: Coordinate | null, nearestFreeParkingLot: ParkingLotWithDistance | null, locationFocus: boolean) {
     const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
 
     useEffect(() => {
-        if (locationFocusActive && userCoords && nearestFreeParkingLot) {
+        if (locationFocus && userCoords && nearestFreeParkingLot) {
             const latCenter = (userCoords.latitude + nearestFreeParkingLot.latitude) / 2;
             const longCenter = (userCoords.longitude + nearestFreeParkingLot.longitude) / 2;
             const latDelta = Math.abs(userCoords.latitude - nearestFreeParkingLot.latitude);
@@ -20,7 +20,7 @@ export function useMapRegion(userCoords: Coordinate | null, nearestFreeParkingLo
                 longitudeDelta: Math.max(0.002, longDelta * 1.2),
             });
         }
-    }, [userCoords, nearestFreeParkingLot, locationFocusActive]);
+    }, [userCoords, nearestFreeParkingLot, locationFocus]);
 
     return mapRegion;
 }

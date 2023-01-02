@@ -5,7 +5,7 @@ import { ParkingLotMarker } from "./ParkingLotMarker";
 import { useUserCoords } from "../hooks/useUserCoords";
 import { useParkingLots } from "../hooks/useParkingLots";
 import { useParkingLotsWithDistance } from "../hooks/useParkingLotsWithDistance";
-import { IconButton, Card } from "react-native-paper";
+import { IconButton, Card, Paragraph, List } from "react-native-paper";
 import { useMemo, useState } from "react";
 import { formatDistance } from "../utils/formatDistance";
 import { ParkingLotList } from "./ParkingLotList";
@@ -13,11 +13,20 @@ import { useMapRegion } from "../hooks/useMapRegion";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { useGeofenceEffect } from "../hooks/useGeofenceEffect";
 import { useFavorites } from "../hooks/useFavorites";
+import { SettingsDialog } from "./SettingsDialog";
+import { Provider as PaperProvider } from "react-native-paper";
+import { useSetting } from "../hooks/useSetting";
+import { SettingItem } from "./SettingItem";
+import { useTTS } from "../hooks/useTTS";
 
 export default function App() {
-    const [locationFocusActive, setLocationFocusActive] = useState(true);
-    const [detailsExpanded, setDetailsExpanded] = useState(false);
+    const [locationFocus, toggleLocationFocus] = useSetting("setting-location-focus", true);
+    const [ttsEnabled, toggleTtsEnabled] = useSetting("tts", true);
 
+    const [detailsExpanded, setDetailsExpanded] = useState(false);
+    const [settingsVisible, setSettingsVisible] = useState(false);
+
+    const tts = useTTS(ttsEnabled);
     const [favorites, toggleFavorite] = useFavorites();
     const userCoords = useUserCoords();
     const parkingLots = useParkingLots(favorites);
@@ -37,46 +46,52 @@ export default function App() {
         ? `${nearestFreeParkingLot.name} in ${formatDistance(nearestFreeParkingLot.distance)}`
         : "Kein freier Parkplatz";
 
-    const mapRegion = useMapRegion(userCoords, nearestFreeParkingLot, locationFocusActive);
-    useGeofenceEffect(parkingLotsWithDistance);
+    const mapRegion = useMapRegion(userCoords, nearestFreeParkingLot, locationFocus);
+    useGeofenceEffect(parkingLotsWithDistance, tts);
 
     return (
-        <RootSiblingParent>
-            <View style={styles.container}>
-                <StatusBar />
-                <MapView style={styles.map} showsUserLocation region={mapRegion} showsMyLocationButton={false}>
-                    {parkingLots.map((parkingLot) => (
-                        <ParkingLotMarker key={parkingLot.id} parkingLot={parkingLot} />
-                    ))}
-                </MapView>
-                <Card style={styles.overlay} onPress={() => setDetailsExpanded(!detailsExpanded)}>
-                    <Card.Title
-                        title={cardTitle}
-                        subtitle="Nächster freier Parkplatz"
-                        left={() =>
-                            nearestFreeParkingLot ? (
-                                <IconButton
-                                    icon={nearestFreeParkingLot.favorite ? "heart" : "heart-outline"}
-                                    color={nearestFreeParkingLot.favorite ? "red" : "#666"}
-                                    onPress={() => toggleFavorite(nearestFreeParkingLot)}
-                                />
-                            ) : null
-                        }
-                        right={() => (
-                            <IconButton
-                                icon={locationFocusActive ? "crosshairs-gps" : "crosshairs-off"}
-                                onPress={() => setLocationFocusActive(!locationFocusActive)}
-                            />
+        <PaperProvider>
+            <RootSiblingParent>
+                <View style={styles.container}>
+                    <StatusBar />
+                    <MapView style={styles.map} showsUserLocation region={mapRegion} showsMyLocationButton={false}>
+                        {parkingLots.map((parkingLot) => (
+                            <ParkingLotMarker key={parkingLot.id} parkingLot={parkingLot} />
+                        ))}
+                    </MapView>
+                    <Card style={styles.overlay} onPress={() => setDetailsExpanded(!detailsExpanded)}>
+                        <Card.Title
+                            title={cardTitle}
+                            subtitle="Nächster freier Parkplatz"
+                            left={() =>
+                                nearestFreeParkingLot ? (
+                                    <IconButton
+                                        icon={nearestFreeParkingLot.favorite ? "heart" : "heart-outline"}
+                                        color={nearestFreeParkingLot.favorite ? "red" : "#666"}
+                                        onPress={() => toggleFavorite(nearestFreeParkingLot)}
+                                    />
+                                ) : null
+                            }
+                            right={() => <IconButton icon="cog" onPress={() => setSettingsVisible(!settingsVisible)} />}
+                        />
+                        {detailsExpanded && (
+                            <Card.Content>
+                                <ParkingLotList parkingLots={parkingLotsWithDistance} onToggleFavorite={toggleFavorite} />
+                            </Card.Content>
                         )}
+                    </Card>
+                </View>
+                <SettingsDialog visible={settingsVisible} onDismiss={() => setSettingsVisible(false)}>
+                    <SettingItem
+                        title="Automatischer Fokus"
+                        icon="image-filter-center-focus"
+                        value={locationFocus}
+                        onValueChange={toggleLocationFocus}
                     />
-                    {detailsExpanded && (
-                        <Card.Content>
-                            <ParkingLotList parkingLots={parkingLotsWithDistance} onToggleFavorite={toggleFavorite} />
-                        </Card.Content>
-                    )}
-                </Card>
-            </View>
-        </RootSiblingParent>
+                    <SettingItem title="Sprachausgabe" icon="volume-high" value={ttsEnabled} onValueChange={toggleTtsEnabled} />
+                </SettingsDialog>
+            </RootSiblingParent>
+        </PaperProvider>
     );
 }
 
