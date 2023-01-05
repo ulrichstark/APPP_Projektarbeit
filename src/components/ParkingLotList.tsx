@@ -1,37 +1,32 @@
-import { StyleSheet, View } from "react-native";
-import { Caption, Title, Subheading, IconButton } from "react-native-paper";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Title, Subheading } from "react-native-paper";
 import { ParkingLot } from "../models/ParkingLot";
 import { ParkingLotWithDistance } from "../models/ParkingLotWithDistance";
 import { formatDistance } from "../utils/formatDistance";
-import { getParkingLotDescription } from "../utils/getParkingLotDescription";
+import { FavoriteButton } from "./FavoriteButton";
+import { ParkingLotDescription } from "./ParkingLotDescription";
 
 interface Props {
     parkingLots: ParkingLotWithDistance[];
     onToggleFavorite(parkingLot: ParkingLot): void;
+    onPressParkingLot(parkingLot: ParkingLot): void;
 }
 
 export function ParkingLotList(props: Props) {
-    const { parkingLots, onToggleFavorite } = props;
+    const { parkingLots, onToggleFavorite, onPressParkingLot } = props;
 
     return (
         <>
-            {parkingLots.map((parkingLot, index) =>
-                index > 0 ? (
-                    <View key={parkingLot.id} style={styles.listItem}>
-                        <IconButton
-                            icon={parkingLot.favorite ? "heart" : "heart-outline"}
-                            color={parkingLot.favorite ? "red" : "#666"}
-                            onPress={() => onToggleFavorite(parkingLot)}
-                            style={styles.listItemAction}
-                        />
-                        <View style={styles.listItemCenter}>
-                            <Subheading>{parkingLot.name}</Subheading>
-                            <Caption>{getParkingLotDescription(parkingLot)}</Caption>
-                        </View>
-                        <Title>{formatDistance(parkingLot.distance)}</Title>
+            {parkingLots.map((parkingLot) => (
+                <Pressable key={parkingLot.id} style={styles.listItem} onPress={() => onPressParkingLot(parkingLot)}>
+                    <FavoriteButton parkingLot={parkingLot} style={styles.listItemAction} onToggleFavorite={onToggleFavorite} />
+                    <View style={styles.listItemCenter}>
+                        <Subheading>{parkingLot.name}</Subheading>
+                        <ParkingLotDescription parkingLot={parkingLot} small />
                     </View>
-                ) : null
-            )}
+                    <Title>{formatDistance(parkingLot.distance)}</Title>
+                </Pressable>
+            ))}
         </>
     );
 }
@@ -48,5 +43,6 @@ const styles = StyleSheet.create({
     },
     listItemCenter: {
         flexGrow: 1,
+        paddingRight: 10,
     },
 });

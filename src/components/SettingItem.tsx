@@ -11,5 +11,12 @@ interface Props {
 export function SettingItem(props: Props) {
     const { title, icon, value, onValueChange } = props;
 
-    return <List.Item title={title} left={() => <List.Icon icon={icon} />} right={() => <Switch value={value} onValueChange={onValueChange} />} />;
+    return (
+        <List.Item
+            title={title}
+            style={{ padding: 0 }}
+            left={() => <List.Icon icon={icon} />}
+            right={() => <Switch value={value} onValueChange={onValueChange} />}
+        />
+    );
 }

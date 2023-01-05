@@ -5,7 +5,7 @@ import { ParkingLotMarker } from "./ParkingLotMarker";
 import { useUserCoords } from "../hooks/useUserCoords";
 import { useParkingLots } from "../hooks/useParkingLots";
 import { useParkingLotsWithDistance } from "../hooks/useParkingLotsWithDistance";
-import { IconButton, Card, Paragraph, List } from "react-native-paper";
+import { IconButton, Card, DefaultTheme, Theme } from "react-native-paper";
 import { useMemo, useState } from "react";
 import { formatDistance } from "../utils/formatDistance";
 import { ParkingLotList } from "./ParkingLotList";
@@ -18,6 +18,16 @@ import { Provider as PaperProvider } from "react-native-paper";
 import { useSetting } from "../hooks/useSetting";
 import { SettingItem } from "./SettingItem";
 import { useTTS } from "../hooks/useTTS";
+import { ParkingLotDialog } from "./ParkingLotDialog";
+import { FavoriteButton } from "./FavoriteButton";
+
+const theme: Theme = {
+    ...DefaultTheme,
+    colors: {
+        ...DefaultTheme.colors,
+        primary: "#08e",
+    },
+};
 
 export default function App() {
     const [locationFocus, toggleLocationFocus] = useSetting("setting-location-focus", true);
@@ -25,6 +35,7 @@ export default function App() {
 
     const [detailsExpanded, setDetailsExpanded] = useState(false);
     const [settingsVisible, setSettingsVisible] = useState(false);
+    const [parkingLotIdForDialog, setParkingLotIdForDialog] = useState<number | null>(null);
 
     const tts = useTTS(ttsEnabled);
     const [favorites, toggleFavorite] = useFavorites();
@@ -42,6 +53,10 @@ export default function App() {
         return null;
     }, [parkingLotsWithDistance]);
 
+    const parkingLotForDialog = useMemo(() => {
+        return parkingLotsWithDistance.find((parkingLot) => parkingLot.id === parkingLotIdForDialog);
+    }, [parkingLotsWithDistance, parkingLotIdForDialog]);
+
     const cardTitle = nearestFreeParkingLot
         ? `${nearestFreeParkingLot.name} in ${formatDistance(nearestFreeParkingLot.distance)}`
         : "Kein freier Parkplatz";
@@ -50,13 +65,17 @@ export default function App() {
     useGeofenceEffect(parkingLotsWithDistance, tts);
 
     return (
-        <PaperProvider>
+        <PaperProvider theme={theme}>
             <RootSiblingParent>
                 <View style={styles.container}>
                     <StatusBar />
                     <MapView style={styles.map} showsUserLocation region={mapRegion} showsMyLocationButton={false}>
                         {parkingLots.map((parkingLot) => (
-                            <ParkingLotMarker key={parkingLot.id} parkingLot={parkingLot} />
+                            <ParkingLotMarker
+                                key={parkingLot.id}
+                                parkingLot={parkingLot}
+                                onCalloutPress={() => setParkingLotIdForDialog(parkingLot.id)}
+                            />
                         ))}
                     </MapView>
                     <Card style={styles.overlay} onPress={() => setDetailsExpanded(!detailsExpanded)}>
@@ -64,19 +83,17 @@ export default function App() {
                             title={cardTitle}
                             subtitle="Nächster freier Parkplatz"
                             left={() =>
-                                nearestFreeParkingLot ? (
-                                    <IconButton
-                                        icon={nearestFreeParkingLot.favorite ? "heart" : "heart-outline"}
-                                        color={nearestFreeParkingLot.favorite ? "red" : "#666"}
-                                        onPress={() => toggleFavorite(nearestFreeParkingLot)}
-                                    />
-                                ) : null
+                                nearestFreeParkingLot ? <FavoriteButton parkingLot={nearestFreeParkingLot} onToggleFavorite={toggleFavorite} /> : null
                             }
                             right={() => <IconButton icon="cog" onPress={() => setSettingsVisible(!settingsVisible)} />}
                         />
                         {detailsExpanded && (
                             <Card.Content>
-                                <ParkingLotList parkingLots={parkingLotsWithDistance} onToggleFavorite={toggleFavorite} />
+                                <ParkingLotList
+                                    parkingLots={parkingLotsWithDistance}
+                                    onToggleFavorite={toggleFavorite}
+                                    onPressParkingLot={(parkingLot) => setParkingLotIdForDialog(parkingLot.id)}
+                                />
                             </Card.Content>
                         )}
                     </Card>
@@ -90,6 +107,13 @@ export default function App() {
                     />
                     <SettingItem title="Sprachausgabe" icon="volume-high" value={ttsEnabled} onValueChange={toggleTtsEnabled} />
                 </SettingsDialog>
+                {parkingLotForDialog && (
+                    <ParkingLotDialog
+                        parkingLot={parkingLotForDialog}
+                        onDismiss={() => setParkingLotIdForDialog(null)}
+                        onToggleFavorite={(parkingLot) => toggleFavorite(parkingLot)}
+                    />
+                )}
             </RootSiblingParent>
         </PaperProvider>
     );
