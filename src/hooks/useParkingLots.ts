@@ -55,7 +55,7 @@ function updateParkingLots(): Promise<ParkingLot[]> {
     });
 }
 
-export function useParkingLots(favorites: number[]) {
+export function useParkingLots(favorites: number[], onlyFavorites: boolean) {
     const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
 
     useEffect(() => {
@@ -77,6 +77,8 @@ export function useParkingLots(favorites: number[]) {
     }, [parkingLots]);
 
     return useMemo(() => {
-        return parkingLots.map((parkingLot) => ({ ...parkingLot, favorite: favorites.includes(parkingLot.id) }));
-    }, [parkingLots, favorites]);
+        return parkingLots
+            .map((parkingLot) => ({ ...parkingLot, favorite: favorites.includes(parkingLot.id) }))
+            .filter((parkingLot) => parkingLot.favorite || !onlyFavorites);
+    }, [parkingLots, favorites, onlyFavorites]);
 }

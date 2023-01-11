@@ -32,6 +32,7 @@ const theme: Theme = {
 export default function App() {
     const [locationFocus, toggleLocationFocus] = useSetting("setting-location-focus", true);
     const [ttsEnabled, toggleTtsEnabled] = useSetting("tts", true);
+    const [onlyFavorites, toggleOnlyFavorites] = useSetting("only-favorites", false);
 
     const [detailsExpanded, setDetailsExpanded] = useState(false);
     const [settingsVisible, setSettingsVisible] = useState(false);
@@ -40,7 +41,7 @@ export default function App() {
     const tts = useTTS(ttsEnabled);
     const [favorites, toggleFavorite] = useFavorites();
     const userCoords = useUserCoords();
-    const parkingLots = useParkingLots(favorites);
+    const parkingLots = useParkingLots(favorites, onlyFavorites);
     const parkingLotsWithDistance = useParkingLotsWithDistance(userCoords, parkingLots);
 
     const nearestFreeParkingLot = useMemo(() => {
@@ -106,6 +107,7 @@ export default function App() {
                         onValueChange={toggleLocationFocus}
                     />
                     <SettingItem title="Sprachausgabe" icon="volume-high" value={ttsEnabled} onValueChange={toggleTtsEnabled} />
+                    <SettingItem title="Zeige nur Favoriten" icon="heart" value={onlyFavorites} onValueChange={toggleOnlyFavorites} />
                 </SettingsDialog>
                 {parkingLotForDialog && (
                     <ParkingLotDialog
