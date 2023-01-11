@@ -10,4 +10,6 @@ export interface ParkingLot extends Coordinate {
     status?: "OK" | "Ersatzwerte" | "Manuell" | "Störung";
     closed?: boolean;
     favorite?: boolean;
+    openingTimes: string;
+    price: number;
 }

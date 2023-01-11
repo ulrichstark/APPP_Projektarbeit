@@ -25,9 +25,19 @@ export function ParkingLotDialog(props: Props) {
                 <Dialog.Content>
                     <ParkingLotDescription parkingLot={parkingLot} />
                     <View style={[styles.row, { marginTop: 15 }]}>
+                        <Paragraph>Öffnungszeiten</Paragraph>
+                        <Paragraph style={styles.importantValue}>{parkingLot.openingTimes}</Paragraph>
+                    </View>
+                    <View style={styles.row}>
+                        <Paragraph>Preis (erste Stunde)</Paragraph>
+                        <Paragraph style={styles.importantValue}>{parkingLot.price.toFixed(2)}€</Paragraph>
+                    </View>
+                    <View style={styles.row}>
                         <Paragraph>Trend der Belegung</Paragraph>
-                        <Paragraph style={styles.importantValue}>
-                            {parkingLot.trend ? (parkingLot.trend > 0 ? "steigt" : "fällt") : "Gleichbleibend"}
+                        <Paragraph
+                            style={[styles.importantValue, { color: parkingLot.trend ? (parkingLot.trend > 0 ? "red" : "green") : undefined }]}
+                        >
+                            {parkingLot.trend ? (parkingLot.trend > 0 ? "steigt ▲" : "fällt ▼") : "gleichbleibend ⬤"}
                         </Paragraph>
                     </View>
                     <View style={styles.row}>
