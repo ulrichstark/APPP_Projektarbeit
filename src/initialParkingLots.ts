@@ -6,7 +6,7 @@ export const initialParkingLots: ParkingLot[] = [
         name: "Kurfürstengarage",
         latitude: 49.441433,
         longitude: 11.860592,
-        openingTimes: "täglich von 0 bis 24 Uhr",
+        openingTimes: "0 bis 24 Uhr",
         price: 1,
     },
     {
@@ -14,7 +14,7 @@ export const initialParkingLots: ParkingLot[] = [
         name: "Theatergarage",
         latitude: 49.446496,
         longitude: 11.854837,
-        openingTimes: "täglich von 0 bis 24 Uhr",
+        openingTimes: "0 bis 24 Uhr",
         price: 1.5,
     },
     {
@@ -22,7 +22,7 @@ export const initialParkingLots: ParkingLot[] = [
         name: "Kräuterwiese",
         latitude: 49.449208,
         longitude: 11.852604,
-        openingTimes: "täglich von 0 bis 24 Uhr",
+        openingTimes: "0 bis 24 Uhr",
         price: 0.5,
     },
     {
@@ -30,7 +30,7 @@ export const initialParkingLots: ParkingLot[] = [
         name: "Am Ziegeltor",
         latitude: 49.448569,
         longitude: 11.856568,
-        openingTimes: "täglich von 0 bis 24 Uhr",
+        openingTimes: "0 bis 24 Uhr",
         price: 1,
     },
     {
@@ -38,7 +38,7 @@ export const initialParkingLots: ParkingLot[] = [
         name: "Kurfürstenbad",
         latitude: 49.441916,
         longitude: 11.859739,
-        openingTimes: "täglich von 0 bis 24 Uhr",
+        openingTimes: "0 bis 24 Uhr",
         price: 1,
     },
     {
@@ -46,7 +46,7 @@ export const initialParkingLots: ParkingLot[] = [
         name: "Kino",
         latitude: 49.444563,
         longitude: 11.865225,
-        openingTimes: "täglich von 0 bis 24 Uhr",
+        openingTimes: "0 bis 24 Uhr",
         price: 0,
     },
     {
@@ -54,7 +54,7 @@ export const initialParkingLots: ParkingLot[] = [
         name: "ACC",
         latitude: 49.441162,
         longitude: 11.860792,
-        openingTimes: "täglich von 0 bis 24 Uhr",
+        openingTimes: "0 bis 24 Uhr",
         price: 0.7,
     },
     {
@@ -62,7 +62,7 @@ export const initialParkingLots: ParkingLot[] = [
         name: "Altstadtgarage",
         latitude: 49.447718,
         longitude: 11.860971,
-        openingTimes: "täglich von 0 bis 24 Uhr",
+        openingTimes: "0 bis 24 Uhr",
         price: 1.5,
     },
     {
@@ -70,7 +70,7 @@ export const initialParkingLots: ParkingLot[] = [
         name: "Marienstraße",
         latitude: 49.444472,
         longitude: 11.866957,
-        openingTimes: "täglich von 0 bis 24 Uhr",
+        openingTimes: "0 bis 24 Uhr",
         price: 1.5,
     },
 ];

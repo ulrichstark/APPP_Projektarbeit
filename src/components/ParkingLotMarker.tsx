@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { Callout, Marker } from "react-native-maps";
-import { Subheading } from "react-native-paper";
+import { Title } from "react-native-paper";
 import { ParkingLot } from "../models/ParkingLot";
 import { ParkingLotDescription } from "./ParkingLotDescription";
 
@@ -22,7 +22,7 @@ export function ParkingLotMarker(props: Props) {
         <Marker coordinate={parkingLot} pinColor={pinColor}>
             <Callout onPress={onCalloutPress}>
                 <View style={styles.callout}>
-                    <Subheading style={{ color: "#08e" }}>{name}</Subheading>
+                    <Title>{name}</Title>
                     <ParkingLotDescription parkingLot={parkingLot} />
                 </View>
             </Callout>
