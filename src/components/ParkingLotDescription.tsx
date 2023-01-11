@@ -4,11 +4,10 @@ import { ParkingLot } from "../models/ParkingLot";
 
 interface Props {
     parkingLot: ParkingLot;
-    small?: boolean;
 }
 
 export function ParkingLotDescription(props: Props) {
-    const { parkingLot, small } = props;
+    const { parkingLot } = props;
     const { closed, free, total, occupied } = parkingLot;
 
     if (closed) {
@@ -17,21 +16,16 @@ export function ParkingLotDescription(props: Props) {
 
     if (free !== undefined && total !== undefined && occupied !== undefined) {
         return (
-            <View>
-                {!small && (
-                    <View style={{ display: "flex", justifyContent: "space-between", flexDirection: "row" }}>
-                        <Paragraph>
-                            <Text style={{ fontWeight: "bold" }}>{occupied}</Text> belegt
-                        </Paragraph>
-                        <View style={{ width: 20 }} />
-                        {free > 0 && (
-                            <Paragraph>
-                                <Text style={{ fontWeight: "bold" }}>{free}</Text> frei
-                            </Paragraph>
-                        )}
-                    </View>
+            <View style={{ position: "relative", minWidth: 180 }}>
+                <ProgressBar progress={occupied / total} style={{ height: 25 }} />
+                <Paragraph style={{ position: "absolute", left: 10, color: "white" }}>
+                    <Text style={{ fontWeight: "bold", color: "white" }}>{occupied}</Text> belegt
+                </Paragraph>
+                {free > 0 && (
+                    <Paragraph style={{ position: "absolute", right: 10 }}>
+                        frei <Text style={{ fontWeight: "bold" }}>{free}</Text>
+                    </Paragraph>
                 )}
-                <ProgressBar progress={occupied / total} style={{ height: 10 }} />
             </View>
         );
     }

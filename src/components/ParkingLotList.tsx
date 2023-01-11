@@ -22,7 +22,7 @@ export function ParkingLotList(props: Props) {
                     <FavoriteButton parkingLot={parkingLot} style={styles.listItemAction} onToggleFavorite={onToggleFavorite} />
                     <View style={styles.listItemCenter}>
                         <Subheading>{parkingLot.name}</Subheading>
-                        <ParkingLotDescription parkingLot={parkingLot} small />
+                        <ParkingLotDescription parkingLot={parkingLot} />
                     </View>
                     <Title>{formatDistance(parkingLot.distance)}</Title>
                 </Pressable>
