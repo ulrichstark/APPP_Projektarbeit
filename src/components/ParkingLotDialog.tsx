@@ -1,8 +1,9 @@
 import { StyleSheet, View } from "react-native";
-import { Button, Dialog, Paragraph, Portal, Title } from "react-native-paper";
+import { Button, Dialog, IconButton, Paragraph, Portal, Title } from "react-native-paper";
 import { ParkingLot } from "../models/ParkingLot";
 import { ParkingLotWithDistance } from "../models/ParkingLotWithDistance";
 import { formatDistance } from "../utils/formatDistance";
+import { openNavigation } from "../utils/openNavigation";
 import { FavoriteButton } from "./FavoriteButton";
 import { ParkingLotDescription } from "./ParkingLotDescription";
 
@@ -18,9 +19,10 @@ export function ParkingLotDialog(props: Props) {
     return (
         <Portal>
             <Dialog visible onDismiss={onDismiss}>
-                <View style={styles.title}>
+                <View style={styles.header}>
                     <FavoriteButton parkingLot={parkingLot} onToggleFavorite={onToggleFavorite} />
-                    <Title>{parkingLot.name}</Title>
+                    <Title style={styles.title}>{parkingLot.name}</Title>
+                    <IconButton icon="close" onPress={onDismiss} />
                 </View>
                 <Dialog.Content>
                     <ParkingLotDescription parkingLot={parkingLot} />
@@ -46,7 +48,9 @@ export function ParkingLotDialog(props: Props) {
                     </View>
                 </Dialog.Content>
                 <Dialog.Actions>
-                    <Button onPress={onDismiss}>Ok</Button>
+                    <Button icon="navigation-variant" onPress={() => openNavigation(parkingLot)}>
+                        Navigation starten
+                    </Button>
                 </Dialog.Actions>
             </Dialog>
         </Portal>
@@ -54,11 +58,14 @@ export function ParkingLotDialog(props: Props) {
 }
 
 const styles = StyleSheet.create({
-    title: {
+    header: {
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         padding: 10,
+    },
+    title: {
+        flexGrow: 1,
     },
     row: {
         display: "flex",
