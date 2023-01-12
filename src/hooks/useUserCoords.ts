@@ -1,4 +1,10 @@
-import { requestForegroundPermissionsAsync, startLocationUpdatesAsync, LocationObject, LocationAccuracy } from "expo-location";
+import {
+    requestForegroundPermissionsAsync,
+    startLocationUpdatesAsync,
+    LocationObject,
+    LocationAccuracy,
+    requestBackgroundPermissionsAsync,
+} from "expo-location";
 import { useEffect, useState } from "react";
 import { Coordinate } from "../models/Coordinate";
 import { defineTask, TaskManagerTaskExecutor } from "expo-task-manager";
@@ -31,6 +37,7 @@ export function useUserCoords() {
         executors.push(executor);
 
         requestForegroundPermissionsAsync()
+            .then(() => requestBackgroundPermissionsAsync())
             .then(() => startLocationUpdatesAsync(config.taskLocationUpdates, { accuracy: LocationAccuracy.BestForNavigation }))
             .catch(() => Toast.show("Standort-Berechtigung wurde nicht erteilt"));
 
