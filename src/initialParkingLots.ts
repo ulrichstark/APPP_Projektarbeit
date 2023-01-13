@@ -47,7 +47,7 @@ export const initialParkingLots: ParkingLot[] = [
         latitude: 49.444563,
         longitude: 11.865225,
         openingTimes: "0 bis 24 Uhr",
-        price: 0,
+        price: 0.5,
     },
     {
         id: 7,

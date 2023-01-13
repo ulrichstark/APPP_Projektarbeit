@@ -32,7 +32,7 @@ export function ParkingLotDialog(props: Props) {
                             <Paragraph style={styles.importantValue}>{parkingLot.openingTimes}</Paragraph>
                         </View>
                         <View style={styles.cell}>
-                            <Paragraph>Preis (erste Stunde)</Paragraph>
+                            <Paragraph>Preis</Paragraph>
                             <Paragraph style={styles.importantValue}>{parkingLot.price.toFixed(2)}€</Paragraph>
                         </View>
                         <View style={styles.cell}>
