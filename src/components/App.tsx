@@ -13,7 +13,7 @@ import { useMapRegion } from "../hooks/useMapRegion";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { useGeofenceEffect } from "../hooks/useGeofenceEffect";
 import { useFavorites } from "../hooks/useFavorites";
-import { SettingsDialog } from "./SettingsDialog";
+import { SettingsMenu } from "./SettingsMenu";
 import { Provider as PaperProvider } from "react-native-paper";
 import { useSetting } from "../hooks/useSetting";
 import { SettingItem } from "./SettingItem";
@@ -34,8 +34,7 @@ export default function App() {
     const [ttsEnabled, toggleTtsEnabled] = useSetting("tts", true);
     const [onlyFavorites, toggleOnlyFavorites] = useSetting("only-favorites", false);
 
-    const [detailsExpanded, setDetailsExpanded] = useState(false);
-    const [settingsVisible, setSettingsVisible] = useState(false);
+    const [listExpanded, setListExpanded] = useState(false);
     const [parkingLotIdForDialog, setParkingLotIdForDialog] = useState<number | null>(null);
 
     const tts = useTTS(ttsEnabled);
@@ -58,9 +57,8 @@ export default function App() {
         return parkingLotsWithDistance.find((parkingLot) => parkingLot.id === parkingLotIdForDialog);
     }, [parkingLotsWithDistance, parkingLotIdForDialog]);
 
-    const cardTitle = nearestFreeParkingLot
-        ? `${nearestFreeParkingLot.name} in ${formatDistance(nearestFreeParkingLot.distance)}`
-        : "Kein freier Parkplatz";
+    const cardTitle = nearestFreeParkingLot ? nearestFreeParkingLot.name : userCoords ? "Kein Parkplatz verfügbar" : "Standort wird geladen...";
+    const cardSubtitle = nearestFreeParkingLot ? `${formatDistance(nearestFreeParkingLot.distance)} - Nächster freier Parkplatz` : "";
 
     const mapRegion = useMapRegion(userCoords, nearestFreeParkingLot, locationFocus);
     useGeofenceEffect(parkingLotsWithDistance, tts);
@@ -79,36 +77,59 @@ export default function App() {
                             />
                         ))}
                     </MapView>
-                    <Card style={styles.overlay} onPress={() => setDetailsExpanded(!detailsExpanded)}>
-                        <Card.Title
-                            title={cardTitle}
-                            subtitle="Nächster freier Parkplatz"
-                            left={() =>
-                                nearestFreeParkingLot ? <FavoriteButton parkingLot={nearestFreeParkingLot} onToggleFavorite={toggleFavorite} /> : null
-                            }
-                            right={() => <IconButton icon="cog" onPress={() => setSettingsVisible(!settingsVisible)} />}
-                        />
-                        {detailsExpanded && (
-                            <Card.Content>
-                                <ParkingLotList
-                                    parkingLots={parkingLotsWithDistance}
-                                    onToggleFavorite={toggleFavorite}
-                                    onPressParkingLot={(parkingLot) => setParkingLotIdForDialog(parkingLot.id)}
-                                />
-                            </Card.Content>
-                        )}
-                    </Card>
+                    <View style={styles.overlay}>
+                        <Card onPress={() => setListExpanded(!listExpanded)}>
+                            <Card.Title
+                                title={cardTitle}
+                                subtitle={cardSubtitle}
+                                subtitleStyle={{ fontSize: 14 }}
+                                left={
+                                    nearestFreeParkingLot
+                                        ? () => <FavoriteButton parkingLot={nearestFreeParkingLot} onToggleFavorite={toggleFavorite} />
+                                        : undefined
+                                }
+                                right={() => (
+                                    <View style={{ flexDirection: "row", marginRight: 5 }}>
+                                        <IconButton
+                                            icon={listExpanded ? "chevron-up" : "chevron-down"}
+                                            style={{ margin: 0 }}
+                                            onPress={() => setListExpanded(!listExpanded)}
+                                        />
+                                        <SettingsMenu>
+                                            <SettingItem
+                                                title="Automatischer Fokus"
+                                                icon="image-filter-center-focus"
+                                                value={locationFocus}
+                                                onValueChange={toggleLocationFocus}
+                                            />
+                                            <SettingItem
+                                                title="Sprachausgabe"
+                                                icon="volume-high"
+                                                value={ttsEnabled}
+                                                onValueChange={toggleTtsEnabled}
+                                            />
+                                            <SettingItem
+                                                title="Zeige nur Favoriten"
+                                                icon="heart"
+                                                value={onlyFavorites}
+                                                onValueChange={toggleOnlyFavorites}
+                                            />
+                                        </SettingsMenu>
+                                    </View>
+                                )}
+                            />
+                            {listExpanded && (
+                                <Card.Content>
+                                    <ParkingLotList
+                                        parkingLots={parkingLotsWithDistance}
+                                        onToggleFavorite={toggleFavorite}
+                                        onPressParkingLot={(parkingLot) => setParkingLotIdForDialog(parkingLot.id)}
+                                    />
+                                </Card.Content>
+                            )}
+                        </Card>
+                    </View>
                 </View>
-                <SettingsDialog visible={settingsVisible} onDismiss={() => setSettingsVisible(false)}>
-                    <SettingItem
-                        title="Automatischer Fokus"
-                        icon="image-filter-center-focus"
-                        value={locationFocus}
-                        onValueChange={toggleLocationFocus}
-                    />
-                    <SettingItem title="Sprachausgabe" icon="volume-high" value={ttsEnabled} onValueChange={toggleTtsEnabled} />
-                    <SettingItem title="Zeige nur Favoriten" icon="heart" value={onlyFavorites} onValueChange={toggleOnlyFavorites} />
-                </SettingsDialog>
                 {parkingLotForDialog && (
                     <ParkingLotDialog
                         parkingLot={parkingLotForDialog}
